@@ -10,19 +10,17 @@ class QuoridorGame:
     def __init__(self):
 
         # initialize the board
-        self._game_status  # TODO: to determine winner
+        self._game_status = "In-Progress"  # TODO: to determine winner
         self._player1 = Player(1)
         self._player2 = Player(2)
         self._players = [self._player1, self._player2]  # TODO: maybe not needed
 
         self._current_turn = self._player1
         # self._player1_pawn = Pawn(self._player1.get_player_num())
-
         # self._player2_pawn = Pawn(self._player2.get_player_num())
         self._board = self._generate_board()
 
-
-
+        # self._valid_inputted_fence_coordinate =
 
     def get_player_from_num(self, number):
         for player in self._players:
@@ -34,7 +32,18 @@ class QuoridorGame:
         board = {}
         for row in range(-1, 10):
             for col in range(-1, 10):
-                board[(col, row)] = {"pawn": None, "fence": None}
+                board[(col, row)] = {
+                    "pawn": None,  # check if pawn is present
+                    "fence": None
+                }
+                # "pawn": False,  # check if pawn is present
+                #     "fence":  # check if fence(s) is present
+                #         {
+                #             "edge": False,
+                #             "h": False,
+                #             "v": False
+                #         }
+                # }
 
         # place player1 and player2 pawn in their starting positions
         board[(4, 0)]["pawn"] = self._player1.get_player_num()
@@ -46,6 +55,10 @@ class QuoridorGame:
             board[(9, i)]["fence"] = Fence("edge")
             board[(i, -1)]["fence"] = Fence("edge")
             board[(i, 9)]["fence"] = Fence("edge")
+
+        # # TODO: erase me. Create test fence
+        board[(6, 5)]["fence"] = Fence("h")
+
 
         return board
 
@@ -99,11 +112,12 @@ class QuoridorGame:
         # else:
         #     self._current_turn = 1
 
-    def _validate_current_turn(self, inputted_player):
+    def _valid_current_turn(self, inputted_player):
         if inputted_player == self._current_turn:
             return True
         else:
             return False
+
 
     def move_pawn(self, player_num, desired_coord):
         """
@@ -117,19 +131,14 @@ class QuoridorGame:
             - or game has already been won
             True if desired move makes the player win
         """
+        # get player from player num
         # check if player entered is the correct current player
-        if not self._validate_current_turn(player_num):  # TODO: put in function decorator
-            return False  # return False if invalid move
 
+        # check if coordinate is forbidden by the rules (diagonal, move in orthogonal directions)
 
+        # check if move is blocked by fence
 
-        # check if player has fences left
-
-        # check if fence is within boundaries of the board
-
-        # check if another fence is already there and new fence will overlap or intersect with the fence
-
-        # if game has already won
+        # check if game has already been won
 
         # update current turn to the other player for the next round
         self._change_current_turn()  # TODO: put in function decorator
@@ -152,15 +161,42 @@ class QuoridorGame:
             True if
             - fence can be placed there
         """
+        # get player from player_num
+        this_player = self.get_player_from_num(player_num)
+        print("this player is:", this_player.get_player_num())  # debug
+
         # check if player entered is the correct current player
-        if not self._validate_current_turn(player_num):  # TODO: put in function decorator
+        if not self._valid_current_turn(this_player):  # TODO: put in function decorator
+            print("not valid current player")  # debug
             return False  # return False if invalid move
 
         # check if player has fences left
-        # if self.plaer
+        if not this_player.has_fences_remaining():
+            print("does not have fences remaining")  # debug
+            return False
+
+        # check if fence is within boundaries of the board
+        if not self._valid_inputted_fence_coordinate(desired_coord):
+            print("not valid inputted coordinate")  # debug
+            return False
+
+        # check if another fence is already there and new fence will overlap or intersect with the fence
+
+        # if game has already won
+
 
         # update current turn to the other player for the next round
-        self._change_current_turn()  # TODO: put in function decorator
+        # self._change_current_turn()  # TODO: put in function decorator
+
+    def _valid_inputted_fence_coordinate(self, coordinate):
+        x = coordinate[0]
+        y = coordinate[1]
+
+        if x < 0 or x > 8:
+            return False
+        if y < 0 or y > 8:
+            return False
+        return True
 
     def is_winner(self, player_num):
         """
@@ -212,8 +248,13 @@ class Player:
     def get_player_num(self):
         return self._player_num
 
-    def get_num_fences_available(self):
+    def get_num_fences_available(self):  # TODO: maybe not needed
         return self._num_fences_available
+
+    def has_fences_remaining(self):
+        if self._num_fences_available == 0:
+            return False
+        return True
 
     def decrement_num_fences_available(self):
         self._num_fences_available -= 1
@@ -224,10 +265,4 @@ q._print_board()
 # print(q.move_pawn(2, (4, 7)))  #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
 # print(q.move_pawn(1, (4, 1)))  #moves the Player1 pawn -- valid move, returns True
 print(q.place_fence(1, 'h',(6,5)))
-# q.move_pawn(2, (4,7)) #moves the Player2 pawn -- valid move, returns True
-# q.place_fence(1, 'h',(6,5)) #places Player1's fence -- returns True
-# q.place_fence(2, 'v',(3,3)) #places Player2's fence -- returns True
-# q.is_winner(1) #returns False because Player 1 has not won
-# q.is_winner(2) #returns False because Player 2 has not won
 
-print(q.get_player_from_num(1))
