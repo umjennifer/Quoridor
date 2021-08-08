@@ -1,14 +1,15 @@
 # Name: Jennifer Um
-# Date: 2021-
-# Description
+# Date: 2021-08-06
+# Description: Create a Quoridor class
 
 class QuoridorGame:
     """
-    TODO: description
+    Class for a Quoridor game.
+    - Interacts with Fence class: Fences will be placed on the Quoridor game board.
+    - Interacts with Player class: Players will have a number of fences, and each will have a pawn on the Quoridor game board.
     """
 
     def __init__(self):
-
         # initialize the board
         self._game_status = "In-Progress"  # TODO: to determine winner
         self._player1 = Player(1)
@@ -16,28 +17,32 @@ class QuoridorGame:
         self._players = [self._player1, self._player2]  # TODO: maybe not needed
 
         # TODO: winning coordinates for player1
-        # TOD: winning coordinates for player2
+        # TODO: winning coordinates for player2
 
         self._current_turn = self._player1
-        # self._player1_pawn = Pawn(self._player1.get_player_num())
-        # self._player2_pawn = Pawn(self._player2.get_player_num())
         self._board = self._generate_board()
 
-        # self._valid_inputted_fence_coordinate =
-
     def get_player_from_num(self, number):
+        """
+        Get Player object from a number
+        :param number: number of player
+        :return: player object
+        """
         for player in self._players:
             if player.get_player_num() == number:
                 return player
         return None
 
     def _generate_board(self):
+        """
+        Generate the Quoridor board and starting positions
+        :return: board
+        """
         board = {}
         for row in range(0, 10):
             for col in range(0, 10):
                 board[(col, row)] = {
                     "pawn": None,  # check if pawn is present
-                    # "fence": None
                     "fence": []  # TODO list of fence objects? or initialize metadata
                 }
 
@@ -53,17 +58,34 @@ class QuoridorGame:
             board[(i, 0)]["fence"].append(Fence("h"))
             board[(i, 9)]["fence"].append(Fence("h"))
 
-        # # TODO: erase me. Create test fence
+        # DEBUGGING - north moves
+        # TODO: erase me. test fences
         board[(6, 5)]["fence"].append(Fence("h"))
+        # board[(4, 7)]["fence"].append(Fence("h"))
+        # board[(4, 7)]["fence"].append(Fence("v"))
+        # board[(5, 7)]["fence"].append(Fence("v"))
+        # TODO: erase me, fake pawn
+        # board[(4, 7)]["pawn"] = 3
+
+        # # DEBUGGING - south moves
+        # TODO: erase me. test fences
+        # board[(4, 1)]["fence"].append(Fence("h"))
+        # board[(4, 1)]["fence"].append(Fence("v"))
+
+        # board[(4, 2)]["fence"].append(Fence("h"))
+        # board[(5, 1)]["fence"].append(Fence("v"))
+        # board[(3, 1)]["fence"].append(Fence("v"))
+
+        # TODO: erase me, fake pawn
+        # board[(4, 1)]["pawn"] = 4
 
         return board
 
     def _print_board(self):
-
-        # for key, value in self._board.items():
-        #     print(key, end=" ")
-        #     print()
-
+        """
+        Print the Quoridor board
+        :return: none
+        """
         for i in range(0, 10):
             for j in range(0, 10):
 
@@ -82,55 +104,61 @@ class QuoridorGame:
                     fence_string = ""
                     for fence in self._board[this_coord]["fence"]:
                         fence_string += str(fence.get_fence_direction())
-                    # if len(self._board[this_coord]["fence"]) > 0:
-                    #     fence_string = str(self._board[this_coord]["fence"][0].get_fence_direction())
 
                 location_string = str(this_coord) + ",pawn=" + pawn_string + ",fence=" + fence_string
                 print(location_string.ljust(35), end="")
-                # print(this_coord, self._board[this_coord], end=" | ")
-                # print(this_coord, end="")
+
             print()
-        # for row in self._board:
-        #     for square in row:
-        #         for coord in square.keys():
-        #             print(coord.get_coordinate(), end="")
-        #         # for value in square.values():
-        #         #     print(value, end="")
-        #         # print(square.keys(), end="")
-        #     print()
 
     def _get_current_turn(self):
+        """
+        Get the player whose turn it currently is
+        :return: player whose turn it currently is
+        """
         return self._current_turn
 
     def _change_current_turn(self):
+        """
+        Change the player whose turn it currently is
+        :return: none
+        """
         if self._current_turn == self._player1:
             self._current_turn = self._player2
         else:
             self._current_turn = self._player1
-        # if self._current_turn == 1:
-        #     self._current_turn = 2
-        # else:
-        #     self._current_turn = 1
 
     def _valid_current_turn(self, inputted_player):
+        """
+        Validate whose turn it currently is
+        :param inputted_player: player that was entered in main
+        :return: True if the current_turn is the inputted_player, False otherwise
+        """
         if inputted_player == self._current_turn:
             return True
         else:
             return False
 
-    # def _check_if_fences_at_coordinate(self, coordinate):
-    #     if len(self._board[coordinate]["fence"]) > 0:
-    #         return True
-    #     return False
-
     def _get_list_fences_at_coordinate(self, coordinate):
+        """
+        Get fences at a coordinate as a list
+        :param coordinate: inputted coordinate
+        :return: list of Fences object at that coordinate
+        """
         return self._board[coordinate]["fence"]
+
+    def _get_pawn_at_coordinate(self, coordinate):
+        """
+        Get pawn at a coordinate
+        :param coordinate: inputted coordinate
+        :return: Pawn at that coordinate
+        """
+        return self._board[coordinate]["pawn"]
 
     def move_pawn(self, player_num, desired_coord):
         """
-        TODO:
-        :param player:
-        :param desired_coord:
+        Validate if a pawn can be moved to the desired coordinate; if so, move it there
+        :param player_num: player's number
+        :param desired_coord: coordinate player would like to move pawn to
         :return:
             False if
             - desired coordinate is forbidden by the rules
@@ -142,7 +170,7 @@ class QuoridorGame:
         # get player from player_num
         this_player = self.get_player_from_num(player_num)
         print("moving_pawn_attempt\ncurrent_turn=", self._current_turn.get_player_num(), "this player=",
-              this_player.get_player_num())  # debug
+              this_player.get_player_num(), "desired_coord=", desired_coord)  # debug
 
         # check if player entered is the correct current player
         if not self._valid_current_turn(this_player):  # TODO: put in function decorator
@@ -172,10 +200,10 @@ class QuoridorGame:
 
     def place_fence(self, player_num, direction, desired_coord):
         """
-        TODO
-        :param player:
-        :param direction:
-        :param desired_coord:
+        Validate and place fence at desired coordinate.
+        :param player_num: number of the player
+        :param direction: direction of the fence (horizontal, vertical)
+        :param desired_coord: coordinate player would like to move pawn to
         :return:
             False if
             - player has no fence left
@@ -189,7 +217,7 @@ class QuoridorGame:
 
         # get player from player_num
         this_player = self.get_player_from_num(player_num)
-        print("placing_fence_attempt\ncurrent_turn=", self._current_turn.get_player_num(), "this player=", this_player.get_player_num())  # debug
+        print("placing_fence_attempt\ncurrent_turn=", self._current_turn.get_player_num(), "this player=", this_player.get_player_num(), "desired_coord", direction, desired_coord)  # debug
 
         # check if player entered is the correct current player
         if not self._valid_current_turn(this_player):  # TODO: put in function decorator
@@ -218,7 +246,7 @@ class QuoridorGame:
 
         # place fence
         self._board[desired_coord]["fence"].append(Fence(direction))
-        print("placing fence at ", desired_coord)
+        print("placing", direction, "fence at ", desired_coord)
         this_player.decrement_num_fences_available()
         print("player ", this_player.get_player_num(), "remaining_fences=", this_player.get_num_fences_available())
 
@@ -228,80 +256,282 @@ class QuoridorGame:
 
 
     def _fence_coordinate_within_boundary(self, coordinate):
-        # TODO: currently used for fence, can prob use for pawn too
-        x = coordinate[0]
-        y = coordinate[1]
-
-        if x < 0 or x > 8:
-            return False
-        if y < 0 or y > 8:
-            return False
-        return True
-
-    def _pawn_coordinate_within_boundary(self, coordinate):
+        """
+        Check if coordinate of a fence is within the valid boundary
+        :param coordinate: coordinate of the fence
+        :return: False if it is within the valid boundary, True if it is not within the valid boundary
+        """
         # TODO: currently used for fence, can prob use for pawn too
         col_num = coordinate[0]
         row_num = coordinate[1]
 
-        if col_num < -1 or col_num > 9:
+        if col_num < 1 or col_num > 8:
             return False
-        if row_num < -1 or row_num > 9:
+        if row_num < 1 or row_num > 8:
+            return False
+        return True
+
+    def _pawn_coordinate_within_boundary(self, coordinate):
+        """
+        Check if coordinate of a pawn is within the valid boundary
+        :param coordinate: coordinate of the pawn
+        :return: False if it is within the valid boundary, True if it is not within the valid boundary
+        """
+        # TODO: currently used for fence, can prob use for pawn too
+        col_num = coordinate[0]
+        row_num = coordinate[1]
+
+        if col_num < 0 or col_num > 8:
+            return False
+        if row_num < 0 or row_num > 8:
             return False
         return True
 
     def _get_valid_pawn_moves(self, player):
+        """
+        Get a list of valid moves a player's pawn can move to with its current coordinate
+        :param player: player that is moving their pawn
+        :return: list of valid moves a player's pawn can move to with its current coordinate
+        """
         valid_moves = []
         current_pawn_coordinate = player.get_pawn_coordinate()
         print("current_pawn_coordinate=", current_pawn_coordinate)
 
         # check north
-        valid_moves.extend(self._get_valid_north_pawn_moves(current_pawn_coordinate))
+        # valid_moves.extend(self._get_valid_north_pawn_moves(current_pawn_coordinate))  # TODO: extend this
+        valid_north = self._get_valid_north_pawn_moves(current_pawn_coordinate)
+        print("valid_north=", valid_north, "\n")
 
         # check east
 
         # check south
+        valid_south = self._get_valid_south_pawn_moves(current_pawn_coordinate)
+        # valid_moves.extend(self._get_valid_south_pawn_moves(current_pawn_coordinate))  # TODO: extend this
+        print("valid_south=", valid_south)
 
         # check west
 
+    def _get_valid_south_pawn_moves(self, current_pawn_coordinate):
+        """
+        Get list of southern, southeastern (se), and southwestern (sw) moves a pawn can move to.
+        :param current_pawn_coordinate: current pawn coordinate
+        :return: list of southern, southeastern (se), and southwestern (sw) moves a pawn can move to
+        """
+        # TODO: shorten
+        curr_col = current_pawn_coordinate[0]
+        curr_row = current_pawn_coordinate[1]
+        valid_south_moves = []
+        south_row = curr_row + 1
+
+        s_coord = (curr_col, south_row)
+        s_coord_is_valid = self._pawn_coordinate_within_boundary(s_coord)
+        s_coord_has_h_fence = self._coordinate_has_h_fence(s_coord)
+
+        se_coord = (curr_col + 1, curr_row + 1)
+        se_coord_is_valid = self._pawn_coordinate_within_boundary(se_coord)
+
+        sw_coord = (curr_col - 1, curr_row + 1)
+        sw_coord_is_valid = self._pawn_coordinate_within_boundary(se_coord)
+
+        s_of_s_coord = (curr_col, south_row+1)
+        s_of_s_coord_is_valid = self._pawn_coordinate_within_boundary(s_of_s_coord)
+
+        if s_coord_is_valid is False:
+            print("SOUTH: s_coord does not exist")
+            return valid_south_moves  # empty list
+
+        # check h fence directions in south coordinate
+        if s_coord_has_h_fence:
+            print("SOUTH: Horizontal fence in", current_pawn_coordinate,
+                  "is blocking pawn from going south.")
+            return valid_south_moves  # empty list because pawn can't go south
+
+        # at this point, s_coord does exist and there's no immediate south fence blocking
+        south_pawn = self._get_pawn_at_coordinate(s_coord)
+        if south_pawn is not None:  # check if there's a pawn in the south coordinate
+            print("There is a south pawn", south_pawn, "in ", s_coord)
+
+            if s_coord_is_valid is True and self._coordinate_has_h_fence(s_of_s_coord) is False:
+                valid_south_moves.append(s_of_s_coord)
+                return valid_south_moves
+
+            if s_of_s_coord_is_valid is True and self._coordinate_has_h_fence(s_of_s_coord) is True:
+                if se_coord_is_valid is True:  # check if we can move se
+                    if self._coordinate_has_v_fence(se_coord) is False:
+                        valid_south_moves.append(se_coord)
+
+                if sw_coord_is_valid is True:  # check if we can move sw
+                    if self._coordinate_has_v_fence(sw_coord) is False:
+                        valid_south_moves.append(sw_coord)
+
+        else:  # if there's no pawn in south coordinate blocking
+            valid_south_moves.append(s_coord)
+
+        return valid_south_moves
+
+
+    def _coordinate_has_v_fence(self, coordinate):
+        for fence in self._get_list_fences_at_coordinate(coordinate):
+            if fence.get_fence_direction() == "v":
+                return True
+        return False
+
+    def _coordinate_has_h_fence(self, coordinate):
+        for fence in self._get_list_fences_at_coordinate(coordinate):
+            if fence.get_fence_direction() == "h":
+                return True
+        return False
+
     def _get_valid_north_pawn_moves(self, current_pawn_coordinate):
+        """
+        Get list of northern, northeastern (ne), and northwestern (nw) moves a pawn can move to.
+        :param current_pawn_coordinate: current pawn coordinate
+        :return: list of northern, northeastern (ne), and northwestern (nw) moves a pawn can move to
+        """
+        # TODO: shorten, check for valid northern coord
         curr_col = current_pawn_coordinate[0]
         curr_row = current_pawn_coordinate[1]
         valid_north_moves = []
-        fences_in_curr_coordinate = self._get_list_fences_at_coordinate(current_pawn_coordinate)
+        north_row = curr_row - 1
 
-        # check if there's a horizontal fence at current coordinate blocking northern moves
-        if len(fences_in_curr_coordinate) > 0:
-            # print("There's fence(s) north of current coordinate (", str(current_pawn_coordinate), ") with directions: ", end="")
+        n_coord = (curr_col, north_row)
+        n_coord_is_valid = self._pawn_coordinate_within_boundary(n_coord)
 
-            # get fence(s) direction
-            for fence in fences_in_curr_coordinate:
-                if fence.get_fence_direction() == "h" or fence.get_fence_direction() == "edge":
-                    print("NORTH: Fence", fence.get_fence_direction(), current_pawn_coordinate, "is blocking pawn from going north.")
+        ne_coord = (curr_col + 1, north_row)
+        ne_coord_is_valid = self._pawn_coordinate_within_boundary(ne_coord)
 
+        nw_coord = (curr_col - 1, north_row)
+        nw_coord_is_valid = self._pawn_coordinate_within_boundary(nw_coord)
 
-        # north_row = curr_row - 1
-        # north_coordinate = (curr_col, north_row)
-        #
-        # if north_row < 0: # if row north of current row is within bounds
-        #     # check if a fence is there
-        #     if len(self._get_list_fences_at_coordinate())
+        n_of_n_coord = (curr_col, north_row+1)
+        n_of_n_coord_is_valid = self._pawn_coordinate_within_boundary(n_of_n_coord)
+
+        if n_coord_is_valid is False:
+            print("North: n_coord does not exist")
+            return valid_north_moves  # empty list
+
+        current_coord_has_h_fence = self._coordinate_has_h_fence(current_pawn_coordinate)
+        if current_coord_has_h_fence:
+            print("NORTH: Fence h in", current_pawn_coordinate, "is blocking pawn from going north.")
+            return valid_north_moves  # empty list
+
+        # at this point, n_coord does exist and there's no immediate north fence blocking
+        north_pawn = self._get_pawn_at_coordinate(n_coord)
+        if north_pawn is not None:  # check if there's a pawn in the north coordinate
+            print("There is a north pawn", north_pawn, "in ", n_coord)
+
+            if n_of_n_coord_is_valid and self._coordinate_has_h_fence(n_coord) is False:
+                valid_north_moves.append(n_of_n_coord)
+                return valid_north_moves
+
+            if n_of_n_coord_is_valid is True and self._coordinate_has_h_fence(n_coord) is True:
+                if nw_coord_is_valid is True:
+                    if self._coordinate_has_v_fence(n_coord) is False:  # check if we can move nw
+                        valid_north_moves.append(nw_coord)
+                if ne_coord_is_valid is True:
+                    if self._coordinate_has_v_fence(ne_coord) is False:
+                        valid_north_moves.append(ne_coord)
+
+        else:  # if there's no pawn in n_coord blocking
+            valid_north_moves.append(n_coord)
 
         return valid_north_moves
 
+    # def _get_valid_north_pawn_moves(self, current_pawn_coordinate):
+    #     """
+    #     Get list of northern, northeastern (ne), and northwestern (nw) moves a pawn can move to.
+    #     :param current_pawn_coordinate: current pawn coordinate
+    #     :return: list of northern, northeastern (ne), and northwestern (nw) moves a pawn can move to
+    #     """
+    #     # TODO: shorten, check for valid northern coord
+    #     curr_col = current_pawn_coordinate[0]
+    #     curr_row = current_pawn_coordinate[1]
+    #     valid_north_moves = []
+    #     fences_in_curr_coordinate = self._get_list_fences_at_coordinate(current_pawn_coordinate)
+    #     north_row = curr_row - 1
+    #     north_coordinate = (curr_col, north_row)
+    #     print("north_coordinate", north_coordinate)
+    #
+    #     if len(fences_in_curr_coordinate) > 0:  # check if there's a horizontal fence at current coordinate blocking northern moves
+    #         for fence in fences_in_curr_coordinate:
+    #             if fence.get_fence_direction() == "h":
+    #                 print("NORTH: Fence", fence.get_fence_direction(), current_pawn_coordinate, "is blocking pawn from going north.")
+    #                 return valid_north_moves  # return empty list
+    #
+    #     # if there's no fence blocking, check if there's a pawn in the coordinate to the north blocking the way
+    #     north_pawn = self._get_pawn_at_coordinate(north_coordinate)
+    #     if north_pawn is not None:
+    #         print("There is a north pawn", north_pawn, "in ", north_coordinate)
+    #         north_coordinate_has_h_fence = False
+    #         north_coordinate_has_v_fence = False
+    #         ne_coord_has_v_fence = False
+    #         ne_coord = (curr_col + 1, curr_row - 1)
+    #         nw_coord = (curr_col - 1, curr_row - 1)
+    #
+    #         # check fence directions in north coordinate
+    #         for fence in self._get_list_fences_at_coordinate(north_coordinate):
+    #             if fence.get_fence_direction() == "h":
+    #                 print("N has horizontal fence")
+    #                 north_coordinate_has_h_fence = True
+    #             if fence.get_fence_direction() == "v":
+    #                 print("N has vertical fence")
+    #                 north_coordinate_has_v_fence = True
+    #
+    #         # check fence direction in northeastern coordinate
+    #         for fence in self._get_list_fences_at_coordinate(ne_coord):
+    #             if fence.get_fence_direction() == "v":
+    #                 print("NW has vertical fence,", str(ne_coord))
+    #                 ne_coord_has_v_fence = True
+    #
+    #         if north_coordinate_has_h_fence == True:  # check if there's a horizontal fence in northern coordinate.
+    #             if north_coordinate_has_v_fence == False:  # check if we can go northwest
+    #                 print("NW move valid", end=" ")
+    #                 valid_north_moves.append(nw_coord)
+    #                 print("; valid_north_moves=", valid_north_moves)
+    #
+    #             if ne_coord_has_v_fence == False:  # check if we can go northeast
+    #                 print("NE move valid", end=" ")
+    #                 valid_north_moves.append(ne_coord)
+    #                 print("; valid_north_moves=", valid_north_moves)
+    #
+    #         else:  # no horizontal fence in northern coordinate.
+    #             valid_north_moves.append((curr_col, curr_row-2))  # jump over pawn counts as valid; add to valid_moves
+    #             print("no horizontal fence in north coordinate, so jumping; valid_north_moves=", valid_north_moves)
+    #
+    #     else:  #else, if there's no fence blocking and no pawn in the coordinate to the north blocking; add to valid_moves
+    #         valid_north_moves.append((curr_col, curr_row-1))
+    #         print("adding north coordinate; valid_north_moves=", valid_north_moves)
+    #
+    #     return valid_north_moves
+
+    def _get_valid_west_pawn_moves(self, current_pawn_coordinate):
+        """
+        Get list of western, northwestern (nw), and southwestern (se) moves a pawn can move to.
+        :param current_pawn_coordinate: current pawn coordinate
+        :return: list of western, northwestern (nw), and southwestern (se) moves a pawn can move to.
+        """
+        pass
+
+    def _get_valid_east_pawn_moves(self, current_pawn_coordinate):
+        """
+        Get list of eastern, northeastern (ne), and southeastern (se) moves a pawn can move to.
+        :param current_pawn_coordinate: current pawn coordinate
+        :return: list of eastern, northeastern (ne), and southeastern (se) moves a pawn can move to.
+        """
+        pass
+
     def is_winner(self, player_num):
         """
-        TODO
-        :return:
-            True if that player has won
-            False if that player has not won
+        Get if player has won
+        :param player_num: player's number
+        :return: True if that player has won, False if that player has not won
         """
 
-
-# class Board:
-#     def __init__(self):
-#         self._board = Boar
-
-class Fence:  # TODO: maybe not needed
+class Fence:
+    """
+    Class for a fence piece.
+    Interacts with QuoridorGame class: fence objects with directions are placed on the board.
+    """
     def __init__(self, direction):
         self._v = False
         self._h = False
@@ -316,6 +546,10 @@ class Fence:  # TODO: maybe not needed
         # self._direction = direction  # horizontal, vertical, or edge
 
     def get_fence_direction(self):
+        """
+        Get a fence object's direction
+        :return: fence object's direction as a string
+        """
         # return self._direction
         if self._edge:
             return "edge"
@@ -324,25 +558,11 @@ class Fence:  # TODO: maybe not needed
         if self._v:
             return "v"
 
-# class Pawn:
-#     def __init__(self, player_num):
-#         self._player = player_num
-#
-#
-#     def get_pawn_number(self):
-#         return self._player
-
-
-# class Coordinate:
-#     def __init__(self, col, row):
-#         self._col = col
-#         self._row = row
-#
-#     def get_coordinate(self):
-#         return (self._col, self._row)
-
-
 class Player:
+    """
+    Class for a Player.
+    Interacts with QuoridorGame class: Players will have a number of fences, and each will have a pawn on the Quoridor game board.
+    """
     def __init__(self, player_num):
         self._player_num = player_num
         self._num_fences_available = 10
@@ -356,23 +576,48 @@ class Player:
         # # move_pawn(1, (4, 8))
 
     def set_pawn_coordinate(self, coordinate):
+        """
+        Set the coordinate of a player's pawn
+        :param coordinate: coordinate of a player's pawn
+        :return: none
+        """
         self._pawn_coordinate = coordinate
 
     def get_pawn_coordinate(self):
+        """
+        Get a player's pawn coordiante
+        :return: player's pawn coordinate
+        """
         return self._pawn_coordinate
 
     def get_player_num(self):
+        """
+        Get the player's number
+        :return: player's number as an integer
+        """
         return self._player_num
 
-    def get_num_fences_available(self):  # TODO: maybe not needed
+    def get_num_fences_available(self):
+        """
+        Get the number of fences a player has left
+        :return: number of fences a player has left
+        """
         return self._num_fences_available
 
     def has_fences_remaining(self):
+        """
+        Checks if a player has fences remaining
+        :return: True if a player has fences remaining, False otherwise
+        """
         if self._num_fences_available == 0:
             return False
         return True
 
     def decrement_num_fences_available(self):
+        """
+        Subtract one from the number of fences a player has left
+        :return: none
+        """
         self._num_fences_available -= 1
 
 
@@ -393,13 +638,17 @@ print(q.place_fence(2, 'v', (6, 5)))
 q._print_board()
 
 print()
-print(q.place_fence(1, 'h', (4, 8)))
+print(q.place_fence(1, 'v', (4, 8)))
 q._print_board()
 
+# print()
+# print(q.move_pawn(2, (4, 7)))
+# q._print_board()
+#
+# print()
+# print(q.move_pawn(1, (4, 2)))
+# q._print_board()
+#
 print()
-print(q.move_pawn(2, (4, 6)))
-q._print_board()
-
-print()
-print(q.move_pawn(1, (4, -1)))
+print(q.move_pawn(2, (0, 0)))
 q._print_board()
