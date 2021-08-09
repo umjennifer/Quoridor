@@ -770,36 +770,36 @@ class Player:
         self._num_fences_available -= 1
 
 
-q = QuoridorGame()
-q.print_board()
-# print(q.move_pawn(2, (4, 7)))  #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
-# print(q.move_pawn(1, (4, 1)))  #moves the Player1 pawn -- valid move, returns True
-
-
-# this_player = q.get_player_from_num(1)  # get player from num
-# for i in range(10): # test no fences
-#     this_player.decrement_num_fences_available()
-# print(this_player.get_num_fences_available())
-# print(q.place_fence(1, 'h', (6, 5)))
-
-print()
-print(q.place_fence(2, 'v', (6, 5)))
-q.print_board()
-
-# print()
-# print(q.place_fence(1, 'v', (4, 8)))
-# q._print_board()
-
-# print()
-# print(q.move_pawn(2, (4, 7)))
-# q._print_board()
+# q = QuoridorGame()
+# q.print_board()
+# # print(q.move_pawn(2, (4, 7)))  #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
+# # print(q.move_pawn(1, (4, 1)))  #moves the Player1 pawn -- valid move, returns True
 #
-print()
-print(q.move_pawn(1, (4, 1)))
-q.print_board()
-
-print()
-print(q.move_pawn(2, (0, 0)))
-q.print_board()
-
-print(q.is_winner(2))
+#
+# # this_player = q.get_player_from_num(1)  # get player from num
+# # for i in range(10): # test no fences
+# #     this_player.decrement_num_fences_available()
+# # print(this_player.get_num_fences_available())
+# # print(q.place_fence(1, 'h', (6, 5)))
+#
+# print()
+# print(q.place_fence(2, 'v', (6, 5)))
+# q.print_board()
+#
+# # print()
+# # print(q.place_fence(1, 'v', (4, 8)))
+# # q._print_board()
+#
+# # print()
+# # print(q.move_pawn(2, (4, 7)))
+# # q._print_board()
+# #
+# print()
+# print(q.move_pawn(1, (4, 1)))
+# q.print_board()
+#
+# print()
+# print(q.move_pawn(2, (0, 0)))
+# q.print_board()
+#
+# print(q.is_winner(2))
