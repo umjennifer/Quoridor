@@ -2,10 +2,6 @@
 # Date: 2021-08-06
 # Description: Create a Quoridor class
 
-# TODO:
-#  - recursion extra credit
-#  - erase debug statements
-
 class QuoridorGame:
     """
     Class for a Quoridor game.
@@ -120,6 +116,7 @@ class QuoridorGame:
         board[(4, 7)]["fence"].append(Fence("h"))
         board[(3, 7)]["fence"].append(Fence("h"))
         board[(2, 7)]["fence"].append(Fence("h"))
+        board[(0, 7)]["fence"].append(Fence("h"))
 
         return board
 
@@ -314,7 +311,9 @@ class QuoridorGame:
 
         # extra credit: check fair play rule  # TODO: finish
         is_break_fair_play_rule = self._fair_play_rule_check(direction, desired_coord)
-        # print("is_break_fair_play_rule=", is_break_fair_play_rule)
+        print("is_break_fair_play_rule=", is_break_fair_play_rule)
+        if is_break_fair_play_rule == "breaks the fair play rule":
+            return is_break_fair_play_rule
 
         # place fence
         self._board[desired_coord]["fence"].append(Fence(direction))
@@ -340,6 +339,8 @@ class QuoridorGame:
         test_fence = Fence(direction)
         self._board[desired_coord]["fence"].append(test_fence)
 
+        player_has_path_to_winning_coordinate = {self._player1: None, self._player2: None}  # value will be True or False
+
         for player in self._players:
             coordinates_visited = set()
             original_pawn_coordinate = player.get_pawn_coordinate()
@@ -353,23 +354,41 @@ class QuoridorGame:
             self.print_board()
 
             result = self.is_fair_play_helper(player, original_pawn_coordinate, coordinates_visited)
+            player_has_path_to_winning_coordinate[player] = result
+            if result is True:
+                print("DOES NOT BREAK FAIR PLAY RULE FOR", player.get_player_num())
+            else:
+                print("BREAKS FAIR PLAY RULE", player.get_player_num())
+
+            print("AFTER RECURSION")
+            self.print_board()
 
             coord_with_pawn_to_remove = player.get_pawn_coordinate()
             self._board[coord_with_pawn_to_remove]["pawn"] = None
             player.set_pawn_coordinate(original_pawn_coordinate)  # revert player's pawn to original pawn coordinate
             self._board[original_pawn_coordinate]["pawn"] = player.get_player_num()
 
-            print("AFTER RECURSION")
+            print("RESETTING BOARD FOR NEXT PLAYER")
             self.print_board()
+
 
         print("REVERTED BOARD")
         self._board[desired_coord]["fence"].remove(test_fence)  # revert board to original (remove fence that was added
-        # self.print_board()
+        self.print_board()
 
-        # if result == True:
-        #     return:
+        print("player_has_path_to_winning_coordinate:", player_has_path_to_winning_coordinate)
+        complies_with_fair_play_rule_count = 0
+        for value in player_has_path_to_winning_coordinate.values():
+            if value is True:
+                complies_with_fair_play_rule_count += 1
 
-    def is_fair_play_helper(self, player, curr_coord, coordinates_visited):  # TODO: may not need curr_coord
+        if complies_with_fair_play_rule_count == len(player_has_path_to_winning_coordinate):
+            print("fence placement does not break the fair play rule")
+        else:
+            print("fence placement breaks the fair play rule")
+            return "breaks the fair play rule"
+
+    def is_fair_play_helper(self, player, curr_coord, coordinates_visited):
         print("\nTESTING RECURSION- player ", player.get_player_num())
         if player.is_pawn_in_winning_coordinate() is True:
             print("i'm a winning coordinate", curr_coord, "\n\n")
@@ -382,12 +401,13 @@ class QuoridorGame:
                 self._board[curr_coord]["pawn"] = None
                 player.set_pawn_coordinate(move)
                 self._board[move]["pawn"] = player.get_player_num()
-                print("coordinates_visited", coordinates_visited)
+                # print("coordinates_visited", coordinates_visited)
 
-                if player.is_pawn_in_winning_coordinate() is False:
-                    return False
+                if self.is_fair_play_helper(player, move, coordinates_visited):
+                    return True
+        return False
 
-            self.is_fair_play_helper(player, move, coordinates_visited)
+
 
     def _fence_coordinate_within_boundary(self, coordinate):
         """
@@ -758,7 +778,7 @@ class Player:
             self._pawn_coordinate = (4, 0)
             self._winning_coordinates = [(0, 8), (1, 8), (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8), (8, 8)]
         else:  # if player 2
-            self._pawn_coordinate = (4, 6)  # TODO: update me back
+            self._pawn_coordinate = (5, 8)  # TODO: update me back
             self._winning_coordinates = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0)]
 
     def is_pawn_in_winning_coordinate(self):
@@ -816,22 +836,22 @@ class Player:
         self._num_fences_available -= 1
 
 
-q = QuoridorGame()
+# q = QuoridorGame()
+# # q.print_board()
+# # q.place_fence(1, 'h', (8, 7))
+# # q.place_fence(2, 'h', (7, 7))
+# #
+# # q.place_fence(1, 'h', (6, 7))
+# # q.place_fence(2, 'h', (5, 7))
+# #
+# # q.place_fence(1, 'h', (4, 7))
+# # q.place_fence(2, 'h', (3, 7))
+# #
+# # q.place_fence(1, 'h', (2, 7))
+# # print("BOARD_ORIGINAL")
+# # q.print_board()
+# print(q.place_fence(1, 'h', (1, 7)))
 # q.print_board()
-# q.place_fence(1, 'h', (8, 7))
-# q.place_fence(2, 'h', (7, 7))
-#
-# q.place_fence(1, 'h', (6, 7))
-# q.place_fence(2, 'h', (5, 7))
-#
-# q.place_fence(1, 'h', (4, 7))
-# q.place_fence(2, 'h', (3, 7))
-#
-# q.place_fence(1, 'h', (2, 7))
-# print("BOARD_ORIGINAL")
-# q.print_board()
-q.place_fence(1, 'h', (1, 7))
-q.print_board()
 
 # q.place_fence(1, 'v',(3,5))
 # q.move_pawn(2,(1,6))
