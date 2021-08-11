@@ -196,31 +196,24 @@ class QuoridorGame:
 
         # check if the game has already been won
         if self._has_game_been_won() is True:
-            # print("game has already been won")  # debug
             return False
 
         # get player from player_num
         this_player = self._get_player_from_num(player_num)
-        # print("moving_pawn_attempt\ncurrent_turn=", self._current_turn.get_player_num(), "this player=",
-        #       this_player.get_player_num(), "desired_coord=", desired_coord)  # debug
 
         # check if player entered is the correct current player
         if not self._is_valid_current_turn(this_player):
-            # print("False: not valid current player")  # debug
             return False  # return False if invalid move
 
         # check if coordinate is forbidden by the rules (diagonal, move in orthogonal directions)
         # check if desired_coord is within valid pawn coordinate boundaries
         if not self._pawn_coordinate_within_boundary(desired_coord):
-            # print("False: not valid inputted coordinate")  # debug
             return False
 
         # get a list of valid moves/coordinates the pawn can move to with its current location
         valid_pawn_moves = self._get_valid_pawn_moves(this_player)
-        # print("valid_pawn_moves=", valid_pawn_moves)  # debug
 
         if desired_coord in valid_pawn_moves:
-            # print("Desired_coord is in valid_pawn_moves")  # debug
 
             # this_player.get_pawn_coordinate() will get player's current pawn coordinate on board
             # on board, update that current coordinate's Pawn key to None
@@ -235,17 +228,13 @@ class QuoridorGame:
             # determine if player has won with that new pawn coordinate
             if this_player.is_pawn_in_winning_coordinate() is True:
                 self._set_status_to_game_won_update_winner(this_player)  # if so, change game status
-                # print("status=", self._get_status())  # debug
-                # print("winner=", self._get_winner().get_player_num())  # debug
                 return True
 
             # update current turn to the other player for the next round
-            # print("updating turn")  # debug
             self._change_current_turn()
             return True
 
         else:  # if desired_coord is not in valid_pawn_moves
-            # print("invalid desired_coord; not updating current turn")  # debug
             return False
 
     def place_fence(self, player_num, direction, desired_coord):
@@ -265,59 +254,46 @@ class QuoridorGame:
         """
         # check if the game has already been won
         if self._has_game_been_won() is True:
-            # print("game has already been won")  # debug
             return False
 
         # get player from player_num
         this_player = self._get_player_from_num(player_num)
-        # print("placing_fence_attempt\ncurrent_turn=", self._current_turn.get_player_num(),
-        #       "this player=", this_player.get_player_num(), "desired_coord", direction, desired_coord)  # debug
 
         # check if player entered is the correct current player
         if not self._is_valid_current_turn(this_player):  # TODO: put in function decorator
-            # print("False: not valid current player")  # debug
             return False  # return False if invalid move
 
         # check if player has fences left
         if not this_player.has_fences_remaining():
-            # print("False: does not have fences remaining")  # debug
             return False
 
         # check if desired_coord is within valid fence coordinate boundaries
         if not self._fence_coordinate_within_boundary(desired_coord):
-            # print("False: not valid inputted coordinate")  # debug
             return False
 
         # check if another fence is already there and new fence will overlap or intersect with the fence
         fences_at_desired_coord = self._get_list_fences_at_coordinate(desired_coord)
         if len(fences_at_desired_coord) > 0:
-            # print("There's fence(s) here")  # debug
             # check if there's already a fence with that direction
             for fence in fences_at_desired_coord:
                 if fence.get_fence_direction() == direction:
-                    # print("False: Fence with direction", direction, "already at", desired_coord)  # debug
                     return False
 
         # extra credit: check fair play rule
-        is_break_fair_play_rule = self._fair_play_rule_check(direction, desired_coord)
-        # print("is_break_fair_play_rule=", is_break_fair_play_rule)  # debug
+        is_break_fair_play_rule = self._is_fair_play(direction, desired_coord)
         if is_break_fair_play_rule == "breaks the fair play rule":
             return is_break_fair_play_rule
 
         # place fence
         self._board[desired_coord]["fence"].append(Fence(direction))
-        # print("placing", direction, "fence at ", desired_coord)  # debug
         this_player.decrement_num_fences_available()
-        # print("player ", this_player.get_player_num(),
-        #       "remaining_fences=", this_player.get_num_fences_available())  # debug
 
         # update current turn to the other player for the next round
-        # print("updating turn")  # debug
-        self._change_current_turn()  # TODO: put in function decorator
+        self._change_current_turn()
 
         return True
 
-    def _fair_play_rule_check(self, direction, desired_coord):
+    def _is_fair_play(self, direction, desired_coord):
         """
         Checks if fence placement would violate the fair play rule
         :param direction: direction of fence being placed
@@ -334,59 +310,43 @@ class QuoridorGame:
             coordinates_visited = set()
             original_pawn_coordinate = player.get_pawn_coordinate()
 
-            # print("\nIN FAIR PLAY RULE FUNC\nMODIFIED, BEFORE RECURSION")  # debug
-            # self.print_board()  # debug
-
-            result = self.is_fair_play_helper(player, original_pawn_coordinate, coordinates_visited)
+            result = self._is_fair_play_helper(player, original_pawn_coordinate, coordinates_visited)
             player_has_path_to_winning_coordinate[player] = result
-            # if result is True:  # debug
-                # print("DOES NOT BREAK FAIR PLAY RULE FOR", player.get_player_num())  # debug
-            # else:  # debug
-            #     print("BREAKS FAIR PLAY RULE", player.get_player_num())  # debug
-
-            # print("AFTER RECURSION")  # debug
-            # self.print_board() # debug
 
             coord_with_pawn_to_remove = player.get_pawn_coordinate()
             self._board[coord_with_pawn_to_remove]["pawn"] = None
             player.set_pawn_coordinate(original_pawn_coordinate)  # revert player's pawn to original pawn coordinate
             self._board[original_pawn_coordinate]["pawn"] = player.get_player_num()
 
-            # print("RESETTING BOARD FOR NEXT PLAYER")  # debug
-            # self.print_board()  # debug
-
-        # print("REVERTED BOARD")  # debug
         self._board[desired_coord]["fence"].remove(test_fence)  # revert board to original (remove fence that was added
-        # self.print_board()  # debug
 
-        # print("player_has_path_to_winning_coordinate:", player_has_path_to_winning_coordinate)  # debug
         complies_with_fair_play_rule_count = 0
         for value in player_has_path_to_winning_coordinate.values():
             if value is True:
                 complies_with_fair_play_rule_count += 1
 
         if complies_with_fair_play_rule_count != len(player_has_path_to_winning_coordinate):
-            # print("fence placement breaks the fair play rule")  # debug
             return "breaks the fair play rule"
-        # else:  # debug
-        #     print("fence placement does not break the fair play rule")  # debug
 
-    def is_fair_play_helper(self, player, curr_coord, coordinates_visited):
-        # print("\nTESTING RECURSION- player ", player.get_player_num())    # debug
+    def _is_fair_play_helper(self, player, curr_coord, coordinates_visited):
+        """
+
+        :param player:
+        :param curr_coord:
+        :param coordinates_visited:
+        :return:
+        """
         if player.is_pawn_in_winning_coordinate() is True:
-            # print("i'm a winning coordinate", curr_coord, "\n\n")    # debug
             return True  # is part of fair play rule
         valid_moves = self._get_valid_pawn_moves(player)
         for move in valid_moves:
             if move not in coordinates_visited:
-                # print("move=", move)    # debug
                 coordinates_visited.add(move)
                 self._board[curr_coord]["pawn"] = None
                 player.set_pawn_coordinate(move)
                 self._board[move]["pawn"] = player.get_player_num()
-                # print("coordinates_visited", coordinates_visited)  # debug
 
-                if self.is_fair_play_helper(player, move, coordinates_visited):
+                if self._is_fair_play_helper(player, move, coordinates_visited):
                     return True
         return False
 
@@ -427,7 +387,6 @@ class QuoridorGame:
         :return: list of valid moves a player's pawn can move to with its current coordinate
         """
         current_pawn_coordinate = player.get_pawn_coordinate()
-        # print("current_pawn_coordinate=", current_pawn_coordinate)  # debug
 
         # check valid moves in each direction
         valid_north = self._get_valid_north_pawn_moves(current_pawn_coordinate)
@@ -435,9 +394,6 @@ class QuoridorGame:
         valid_west = self._get_valid_west_pawn_moves(current_pawn_coordinate)
         valid_east = self._get_valid_east_pawn_moves(current_pawn_coordinate)
         valid_moves = valid_north + valid_south + valid_west + valid_east
-
-        # print("valid_north=", valid_north, "valid_south=", valid_south,
-        #       "valid_west=", valid_west, "valid_east=", valid_east)  # debug
 
         return valid_moves
 
@@ -447,7 +403,6 @@ class QuoridorGame:
         :param current_pawn_coordinate: current pawn coordinate
         :return: list of southern, southeastern (se), and southwestern (sw) moves a pawn can move to
         """
-        # TODO: shorten
         curr_col = current_pawn_coordinate[0]
         curr_row = current_pawn_coordinate[1]
         valid_south_moves = []
@@ -467,18 +422,15 @@ class QuoridorGame:
         s_of_s_coord_is_valid = self._pawn_coordinate_within_boundary(s_of_s_coord)
 
         if s_coord_is_valid is False:
-            # print("SOUTH: s_coord does not exist")  # debug
             return valid_south_moves  # empty list
 
         # check h fence directions in south coordinate
         if s_coord_has_h_fence:
-            # print("SOUTH: Horizontal fence in", current_pawn_coordinate,"is blocking pawn from going south.")  # debug
             return valid_south_moves  # empty list because pawn can't go south
 
         # at this point, s_coord does exist and there's no immediate south fence blocking
         south_pawn = self._get_pawn_at_coordinate(s_coord)
         if south_pawn is not None:  # check if there's a pawn in the south coordinate
-            # print("There is a south pawn", south_pawn, "in ", s_coord)   # debug
 
             # if no fence behind adjacent pawn
             if s_of_s_coord_is_valid is True and self._coordinate_has_h_fence(s_of_s_coord) is False:
@@ -547,18 +499,15 @@ class QuoridorGame:
         n_of_n_coord_is_valid = self._pawn_coordinate_within_boundary(n_of_n_coord)
 
         if n_coord_is_valid is False:
-            # print("North: n_coord does not exist")  # debug
             return valid_north_moves  # empty list
 
         current_coord_has_h_fence = self._coordinate_has_h_fence(current_pawn_coordinate)
         if current_coord_has_h_fence is True:
-            # print("NORTH: Fence h in", current_pawn_coordinate, "is blocking pawn from going north.")  # debug
             return valid_north_moves  # empty list
 
         # at this point, n_coord does exist and there's no immediate north fence blocking
         north_pawn = self._get_pawn_at_coordinate(n_coord)
         if north_pawn is not None:  # check if there's a pawn in the north coordinate
-            # print("There is a north pawn", north_pawn, "in ", n_coord)  # debug
 
             if n_of_n_coord_is_valid and self._coordinate_has_h_fence(n_coord) is False:
                 valid_north_moves.append(n_of_n_coord)
@@ -599,24 +548,16 @@ class QuoridorGame:
         sw_coord = (west_col, curr_row+1)
         sw_coord_is_valid = self._pawn_coordinate_within_boundary(sw_coord)
 
-        # print("w_coord", w_coord)  # debug
-        # print("nw_coord", nw_coord)  # debug
-        # print("sw_coord", sw_coord)  # debug
-        # print("w_of_w_coord", w_of_w_coord)  # debug
-
         if w_coord_is_valid is False:
-            # print("w_coord does not exist")  # debug
             return valid_west_moves  # empty list
 
         # check if immediate western fence is blocking
         if self._coordinate_has_v_fence(current_pawn_coordinate):
-            # print("immediate western fence blocking pawn from going west")  # debug
-            return valid_west_moves  # empty list
+              return valid_west_moves  # empty list
 
         # at this point, w_coord does exist and there's no immediate western fence blocking
         west_pawn = self._get_pawn_at_coordinate(w_coord)
         if west_pawn is not None:
-            # print("There's a west pawn at", w_coord)  # debug
 
             # no fence behind adjacent pawn
             if w_of_w_coord_is_valid is True and self._coordinate_has_v_fence(w_coord) is False:
@@ -628,13 +569,10 @@ class QuoridorGame:
                 if nw_coord_is_valid is True:
                     if self._coordinate_has_h_fence(w_coord) is False:
                         valid_west_moves.append(nw_coord)
-                        # print("no h fence at current coordinate; valid_west_moves=", valid_west_moves)  # debug
 
                 if sw_coord_is_valid is True:
                     if self._coordinate_has_h_fence(sw_coord) is False:
                         valid_west_moves.append(sw_coord)
-                        # print("no h fence at sw_coord. valid_west_moves=", valid_west_moves)  # debug
-                # print("valid_west_moves", valid_west_moves)  # debug
 
         else:  # if there's no pawn in west coordinate blocking
             valid_west_moves.append(w_coord)
@@ -665,25 +603,16 @@ class QuoridorGame:
         se_coord = (east_col, curr_row+1)
         se_coord_is_valid = self._pawn_coordinate_within_boundary(se_coord)
 
-        # print("e_coord", e_coord)  # debug
-        # print("ne_coord", ne_coord)  # debug
-        # print("se_coord", se_coord)  # debug
-        # print("e_of_e_coord", e_of_e_coord)  # debug
-
         if e_coord_is_valid is False:
-            # print("e_coord does not exist")  # debug
             return valid_east_moves  # empty list
 
         # check if immediate eastern fence is blocking
         if self._coordinate_has_v_fence(e_coord) is True:
-            # print("immediate eastern fence blocking pawn from going east")  # debug
             return valid_east_moves  # empty list
 
         # at this point, e_coord does exist and there's no immediate western fence blocking
         east_pawn = self._get_pawn_at_coordinate(e_coord)
         if east_pawn is not None:
-            # print("There's an east pawn at", e_coord)  # debug
-
             # no fence behind adjacent pawn
             if e_of_e_coord_is_valid is True and self._coordinate_has_v_fence(e_of_e_coord) is False:
                 valid_east_moves.append(e_of_e_coord)
@@ -731,7 +660,6 @@ class Fence:
             self._h = True
         if direction == "v":
             self._v = True
-        # self._direction = direction  # horizontal, vertical, or edge
 
     def get_fence_direction(self):
         """
@@ -815,42 +743,3 @@ class Player:
         :return: none
         """
         self._num_fences_available -= 1
-
-
-q = QuoridorGame()
-# q.print_board()
-q.place_fence(1, 'h', (8, 7))
-# q.place_fence(2, 'h', (7, 7))
-#
-# q.place_fence(1, 'h', (6, 7))
-# q.place_fence(2, 'h', (5, 7))
-#
-# q.place_fence(1, 'h', (4, 7))
-# q.place_fence(2, 'h', (3, 7))
-#
-# q.place_fence(1, 'h', (2, 7))
-# print("BOARD_ORIGINAL")
-# q.print_board()
-# print(q.place_fence(1, 'h', (1, 7)))
-# q.print_board()
-
-# q.place_fence(1, 'v',(3,5))
-q.move_pawn(2,(1,6))
-
-# print("player1 num fences=", q._get_player_from_num(1).get_num_fences_available())
-# print("player2 num fences=", q._get_player_from_num(2).get_num_fences_available())
-
-# print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- invalid move because only Player1 can start, returns False
-# print(q.move_pawn(1, (4,1))) #moves the Player1 pawn -- valid move, returns True
-# # q.print_board()
-# print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- out of turn move, returns False
-# # q.print_board()
-# print(q.move_pawn(2, (4,7))) #moves the Player2 pawn -- valid move, returns True
-# # q.print_board()
-# print(q.place_fence(1, 'h',(6,5))) #places Player1's fence -- returns True
-# # q.print_board()
-# print(q.place_fence(2, 'v',(3,3))) #places Player2's fence -- returns True
-# # q.print_board()
-# print(q.is_winner(1)) #returns False because Player 1 has not won
-# # q.print_board()
-# print(q.is_winner(2)) #returns False because Player 2 has not won
