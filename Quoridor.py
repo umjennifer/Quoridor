@@ -192,8 +192,6 @@ class QuoridorGame:
             - or game has already been won
             True if desired move makes the player win
         """
-        # TODO: put in function decorator along with place_fence?
-
         # check if the game has already been won
         if self._has_game_been_won() is True:
             return False
@@ -260,7 +258,7 @@ class QuoridorGame:
         this_player = self._get_player_from_num(player_num)
 
         # check if player entered is the correct current player
-        if not self._is_valid_current_turn(this_player):  # TODO: put in function decorator
+        if not self._is_valid_current_turn(this_player):
             return False  # return False if invalid move
 
         # check if player has fences left
@@ -480,7 +478,6 @@ class QuoridorGame:
         :param current_pawn_coordinate: current pawn coordinate
         :return: list of northern, northeastern (ne), and northwestern (nw) moves a pawn can move to
         """
-        # TODO: shorten
         curr_col = current_pawn_coordinate[0]
         curr_row = current_pawn_coordinate[1]
         valid_north_moves = []
@@ -530,7 +527,6 @@ class QuoridorGame:
         :param current_pawn_coordinate: current pawn coordinate
         :return: list of western, northwestern (nw), and southwestern (se) moves a pawn can move to.
         """
-        # TODO: shorten
         curr_col = current_pawn_coordinate[0]
         curr_row = current_pawn_coordinate[1]
         valid_west_moves = []
@@ -585,7 +581,6 @@ class QuoridorGame:
         :param current_pawn_coordinate: current pawn coordinate
         :return: list of eastern, northeastern (ne), and southeastern (se) moves a pawn can move to.
         """
-        # TODO: shorten
         curr_col = current_pawn_coordinate[0]
         curr_row = current_pawn_coordinate[1]
         valid_east_moves = []
